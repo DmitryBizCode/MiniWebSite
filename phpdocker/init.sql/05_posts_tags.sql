@@ -1,0 +1,9 @@
+CREATE TABLE IF NOT EXISTS post_tags (
+    id INT NOT NULL AUTO_INCREMENT,
+    post_id INT NOT NULL,
+    tag_id INT NOT NULL,
+
+    FOREIGN KEY (post_id) REFERENCES posts(id) ON DELETE CASCADE,
+    FOREIGN KEY (tag_id) REFERENCES tags(id) ON DELETE CASCADE,
+    PRIMARY KEY (id)
+    );
