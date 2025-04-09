@@ -14,10 +14,13 @@
     "require": {
       "guzzlehttp/guzzle": "^7.9",
       "ext-json": "*",
-      "ext-curl": "*"
+      "ext-curl": "*",
+        "twbs/bootstrap": "^5.3",
+        "symfony/var-dumper": "^7.2"
     }
     ,
     "require-dev": {
-        "roave/security-advisories": "dev-latest"
+        "roave/security-advisories": "dev-latest",
+        "friendsofphp/php-cs-fixer": "^3.75"
     }
 }
