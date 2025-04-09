@@ -63,6 +63,8 @@
         });
 
         document.getElementById("leadForm").addEventListener("submit", function(event) {
+            event.preventDefault();
+
             let valid = true;
 
             const firstName = document.getElementById("firstName");
@@ -75,29 +77,23 @@
             const phoneError = document.getElementById("phoneError");
             let phoneInputValue = phoneInput.value.trim();
 
+            let fullPhoneNumber = '';
             if (phoneInputValue === "") {
                 phoneError.style.display = "block";
                 phoneInput.classList.add("is-invalid");
                 valid = false;
-                console.log("Phone input is empty");
             } else {
                 const selectedCountryData = iti.getSelectedCountryData();
-                const fullPhoneNumber = `+${selectedCountryData.dialCode}${phoneInputValue.replace(/^0+/, '')}`;
-
-                console.log("Selected country dial code:", selectedCountryData.dialCode);
-                console.log("Phone input value:", phoneInputValue);
-                console.log("Full phone number:", fullPhoneNumber);
+                fullPhoneNumber = `+${selectedCountryData.dialCode}${phoneInputValue.replace(/^0+/, '')}`;
 
                 if (!/^\+\d{7,15}$/.test(fullPhoneNumber)) {
                     phoneError.style.display = "block";
                     phoneInput.classList.add("is-invalid");
                     valid = false;
-                    console.log("Phone number is invalid");
                 } else {
                     phoneError.style.display = "none";
                     phoneInput.classList.remove("is-invalid");
                     phoneInput.value = fullPhoneNumber;
-                    console.log("Phone number is valid and set:", fullPhoneNumber);
                 }
             }
 
@@ -105,9 +101,40 @@
             const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
             valid &= validateField(email, emailRegex, "emailError");
 
-            if (!valid) {
-                event.preventDefault();
-            }
+            if (!valid) return;
+
+            const formData = new FormData(this);
+
+            fetch('/submit', {
+                method: 'POST',
+                body: formData
+            })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.status === true) {
+                        alert(`Lead submitted successfully! ID: ${data.id}, Email: ${data.email}`);
+
+                        document.getElementById("firstName").value = '';
+                        document.getElementById("lastName").value = '';
+                        document.getElementById("phone").value = '';
+                        document.getElementById("email").value = '';
+
+                        ['firstNameError', 'lastNameError', 'phoneError', 'emailError'].forEach(id => {
+                            document.getElementById(id).style.display = 'none';
+                        });
+                        ['firstName', 'lastName', 'phone', 'email'].forEach(id => {
+                            document.getElementById(id).classList.remove('is-invalid');
+                        });
+
+                        iti.setCountry('');
+                    } else {
+                        alert('Error: ' + data.error);
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('Error sent form.');
+                });
         });
 
         function validateField(inputElement, regex, errorElementId) {

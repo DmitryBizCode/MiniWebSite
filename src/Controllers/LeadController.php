@@ -40,18 +40,32 @@ class LeadController
                 'password' => 'qwerty12',
                 'language' => 'en'
             ];
+
             $api = new ApiService();
             $response = $api->addLead($data);
 
-            if ($response['status'] === true) {
-                echo "Lead submitted successfully! ID: {$response['id']}, Email: {$response['email']}";
-            } else {
-                echo "Error: {$response['error']}";
-            }
+            header('Content-Type: application/json');
 
+            if ($response['status'] === true) {
+                echo json_encode([
+                    'status' => true,
+                    'id' => $response['id'],
+                    'email' => $response['email']
+                ]);
+            } else {
+                echo json_encode([
+                    'status' => false,
+                    'error' => $response['error']
+                ]);
+            }
         } catch (Exception $e) {
-            echo "An error occurred: " . $e->getMessage();
+            header('Content-Type: application/json');
+            echo json_encode([
+                'status' => false,
+                'error' => $e->getMessage()
+            ]);
         }
     }
+
 
 }
